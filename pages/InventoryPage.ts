@@ -40,13 +40,6 @@ export class InventoryPage {
 		await addToCartButton.click();
 	}
 
-	async removeItemFromCartByName(itemName: string): Promise<void> {
-		const itemLocator = this.getItemLocatorByName(itemName);
-		const removeButton = itemLocator.getByRole("button", { name: "Remove" });
-
-		await removeButton.click();
-	}
-
 	async getCartItemCount(): Promise<number> {
 		const countText = await this.cartIcon.innerText();
 		return parseInt(countText);
@@ -55,6 +48,15 @@ export class InventoryPage {
 	async getProductNames(): Promise<string[]> {
 		const names = this.page.locator('[data-test="inventory-item-name"]');
 		return await names.allInnerTexts();
+	}
+
+	async getProductPrices(): Promise<string[]> {
+		const prices = this.page.locator('[data-test="inventory-item-price"]');
+		return await prices.allInnerTexts();
+	}
+
+	async gotoCart(): Promise<void> {
+		await this.cartIcon.click();
 	}
 
 	async logout(): Promise<void> {

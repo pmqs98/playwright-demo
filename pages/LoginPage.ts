@@ -27,7 +27,7 @@ export class LoginPage {
 		return await this.errorMessage.innerText();
 	}
 
-	async isErrorMessageVisible(): Promise<void> {
+	async assertErrorMessageIsVisible(): Promise<void> {
 		await expect(this.errorMessage).toBeVisible();
 	}
 }

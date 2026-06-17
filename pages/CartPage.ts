@@ -21,7 +21,7 @@ export class CartPage {
 		return await this.cartItems.count();
 	}
 
-	async getCartItems(): Promise<string[]> {
+	async getItemNames(): Promise<string[]> {
 		return await this.cartItems
 			.locator('[data-test="inventory-item-name"]')
 			.allInnerTexts();
