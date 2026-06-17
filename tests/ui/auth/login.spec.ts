@@ -1,63 +1,58 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../../pages/LoginPage";
+import { InventoryPage } from "../../../pages/InventoryPage";
+import { SauceUser, PASSWORD } from "../../../utils/TestData";
 
 test.describe("Login Page", () => {
+	let loginPage: LoginPage;
+	let inventoryPage: InventoryPage;
+
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/");
+		loginPage = new LoginPage(page);
+		inventoryPage = new InventoryPage(page);
+		loginPage.goto();
 	});
 
 	test("valid credentails and redirect to inventory page", async ({ page }) => {
-		await page.locator('[data-test="username"]').fill("standard_user");
-		await page.locator('[data-test="password"]').fill("secret_sauce");
-		await page.locator('[data-test="login-button"]').click();
+		loginPage.login(SauceUser.STANDARD, PASSWORD);
 
 		await expect(page).toHaveURL("/inventory.html");
-		await expect(page.getByText("Products")).toBeVisible();
-		await expect(
-			page.locator('[data-test="inventory-container"]'),
-		).toBeVisible();
+		await inventoryPage.assertIsOnInventoryPage();
 	});
 
-	test("locked out user sees error message", async ({ page }) => {
-		await page.locator('[data-test="username"]').fill("locked_out_user");
-		await page.locator('[data-test="password"]').fill("secret_sauce");
-		await page.locator('[data-test="login-button"]').click();
+	test("locked out user sees error message", async () => {
+		loginPage.login(SauceUser.LOCKED_OUT, PASSWORD);
 
-		await expect(page.locator('[data-test="error"]')).toContainText(
+		await loginPage.isErrorMessageVisible();
+		expect(await loginPage.getErrorMessage()).toContain(
 			"Epic sadface: Sorry, this user has been locked out.",
 		);
 	});
 
-	test("wrong password shows error message", async ({ page }) => {
-		await page.locator('[data-test="username"]').fill("standard_user");
-		await page.locator('[data-test="password"]').fill("wrong_password");
-		await page.locator('[data-test="login-button"]').click();
+	test("wrong password shows error message", async () => {
+		loginPage.login(SauceUser.STANDARD, "wrong_password");
 
-		await expect(page.locator('[data-test="error"]')).toContainText(
+		await loginPage.isErrorMessageVisible();
+		expect(await loginPage.getErrorMessage()).toContain(
 			"Username and password do not match",
 		);
 	});
 
-	test("empty credentials shows error message", async ({ page }) => {
-		await page.locator('[data-test="login-button"]').click();
+	test("empty credentials shows error message", async () => {
+		loginPage.login("", "");
 
-		await expect(page.locator("[data-test='error']")).toContainText(
-			"Username is required",
-		);
+		await loginPage.isErrorMessageVisible();
+		expect(await loginPage.getErrorMessage()).toContain("Username is required");
 	});
 
 	test("successful login and logout", async ({ page }) => {
-		await page.locator('[data-test="username"]').fill("standard_user");
-		await page.locator('[data-test="password"]').fill("secret_sauce");
-		await page.locator('[data-test="login-button"]').click();
+		loginPage.login(SauceUser.STANDARD, PASSWORD);
 
 		await expect(page).toHaveURL("/inventory.html");
-		await expect(page.getByText("Products")).toBeVisible();
-		await expect(
-			page.locator('[data-test="inventory-container"]'),
-		).toBeVisible();
 
-		await page.getByRole("button", { name: "Open Menu" }).click();
-		await page.locator('[data-test="logout-sidebar-link"]').click();
+		await inventoryPage.assertIsOnInventoryPage();
+
+		inventoryPage.logout();
 
 		await expect(page).toHaveURL("/");
 		await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
