@@ -57,4 +57,15 @@ test.describe("Login Page", () => {
 		await expect(page).toHaveURL("/");
 		await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
 	});
+
+	test("inventory page handles broken product images gracefully", async ({
+		page,
+	}) => {
+		// Intercept all image requests and force them to fail
+		await page.route("**/*.{png,jpg,jpeg}", (route) => route.abort());
+		await loginPage.login(SauceUser.STANDARD, PASSWORD);
+
+		// Assert the page still functions even though images failed to load
+		await inventoryPage.assertIsOnInventoryPage();
+	});
 });
