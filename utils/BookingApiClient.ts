@@ -55,4 +55,15 @@ export class BookingApiClient {
 			headers: { Cookie: `token=${token}` },
 		});
 	}
+
+	async patchBooking(
+		id: number,
+		token: string,
+		partialBookingData: Partial<BookingData>,
+	) {
+		return await this.request.patch(`${API_BASE_URL}/booking/${id}`, {
+			data: partialBookingData,
+			headers: { Cookie: `token=${token}` },
+		});
+	}
 }
