@@ -1,0 +1,18 @@
+import { z } from "zod";
+
+export const BookingResponseSchema = z.object({
+	firstname: z.string(),
+	lastname: z.string(),
+	totalprice: z.number(),
+	depositpaid: z.boolean(),
+	bookingdates: z.object({
+		checkin: z.string(),
+		checkout: z.string(),
+	}),
+	additionalneeds: z.string().optional(),
+});
+
+export const CreateBookingResponse = z.object({
+	bookingid: z.number(),
+	booking: BookingResponseSchema,
+});
