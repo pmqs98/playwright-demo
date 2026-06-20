@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "../../../pages/LoginPage";
-import { SauceUser, PASSWORD } from "../../../utils/TestData";
+import { SauceUser, PASSWORD } from "../../../utils/testData";
 
 test.describe("Visual regression", () => {
 	test("inventory page matches baseline screenshot", async ({ page }) => {

@@ -2,7 +2,7 @@
 import { test } from "@playwright/test";
 import { LoginPage } from "../../pages/LoginPage";
 import { InventoryPage } from "../../pages/InventoryPage";
-import { SauceUser, PASSWORD } from "../../utils/TestData";
+import { SauceUser, PASSWORD } from "../../utils/testData";
 
 test.describe("Inventory Page - network resilience", () => {
 	let loginPage: LoginPage;
