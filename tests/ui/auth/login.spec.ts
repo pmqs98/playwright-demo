@@ -1,26 +1,25 @@
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "../../../pages/LoginPage";
-import { InventoryPage } from "../../../pages/InventoryPage";
+import { test, expect } from "../../../fixtures";
 import { SauceUser, PASSWORD } from "../../../utils/testData";
 
 test.describe("Login Page", () => {
-	let loginPage: LoginPage;
-	let inventoryPage: InventoryPage;
-
-	test.beforeEach(async ({ page }) => {
-		loginPage = new LoginPage(page);
-		inventoryPage = new InventoryPage(page);
+	test.beforeEach(async ({ loginPage }) => {
 		await loginPage.goto();
 	});
 
-	test("valid credentails and redirect to inventory page", async ({ page }) => {
+	test("valid credentials and redirect to inventory page @smoke", async ({
+		page,
+		inventoryPage,
+		loginPage,
+	}) => {
 		await loginPage.login(SauceUser.STANDARD, PASSWORD);
 
 		await expect(page).toHaveURL("/inventory.html");
 		await inventoryPage.assertIsOnInventoryPage();
 	});
 
-	test("locked out user sees error message", async () => {
+	test("locked out user sees error message @regression", async ({
+		loginPage,
+	}) => {
 		await loginPage.login(SauceUser.LOCKED_OUT, PASSWORD);
 
 		await loginPage.assertErrorMessageIsVisible();
@@ -29,7 +28,9 @@ test.describe("Login Page", () => {
 		);
 	});
 
-	test("wrong password shows error message", async () => {
+	test("wrong password shows error message @regression", async ({
+		loginPage,
+	}) => {
 		await loginPage.login(SauceUser.STANDARD, "wrong_password");
 
 		await loginPage.assertErrorMessageIsVisible();
@@ -38,14 +39,20 @@ test.describe("Login Page", () => {
 		);
 	});
 
-	test("empty credentials shows error message", async () => {
+	test("empty credentials shows error message @regression", async ({
+		loginPage,
+	}) => {
 		await loginPage.login("", "");
 
 		await loginPage.assertErrorMessageIsVisible();
 		expect(await loginPage.getErrorMessage()).toContain("Username is required");
 	});
 
-	test("successful login and logout", async ({ page }) => {
+	test("successful login and logout @regression", async ({
+		page,
+		loginPage,
+		inventoryPage,
+	}) => {
 		await loginPage.login(SauceUser.STANDARD, PASSWORD);
 
 		await expect(page).toHaveURL("/inventory.html");

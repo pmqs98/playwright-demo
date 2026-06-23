@@ -1,23 +1,12 @@
-import { test, expect } from "@playwright/test";
-import { BookingApiClient, BookingData } from "../../utils/BookingApiClient";
-import { BookingClientData } from "../../utils/BookingClientData";
+import { test, expect } from "../../fixtures";
+import { BookingData } from "../../utils/BookingApiClient";
 import {
 	BookingResponseSchema,
 	CreateBookingResponse,
 } from "../../utils/bookingSchema";
 
 test.describe("Booking API - CRUD with auth", () => {
-	let apiClient: BookingApiClient;
-	let token: string;
-	let bookingDataGenerator: BookingClientData;
-
-	test.beforeEach(async ({ request }) => {
-		apiClient = new BookingApiClient(request);
-		token = await apiClient.getAuthToken();
-		bookingDataGenerator = new BookingClientData();
-	});
-
-	test("GET all bookings returns 200", async () => {
+	test("GET all bookings returns 200 @smoke @api", async ({ apiClient }) => {
 		const response = await apiClient.getAllBookings();
 		expect(response.status()).toBe(200);
 
@@ -25,7 +14,9 @@ test.describe("Booking API - CRUD with auth", () => {
 		expect(Array.isArray(body)).toBeTruthy();
 	});
 
-	test("GET booking by id matches expected schema", async () => {
+	test("GET booking by id matches expected schema @regression @api", async ({
+		apiClient,
+	}) => {
 		const listResponse = await apiClient.getAllBookings();
 		const bookings = await listResponse.json();
 		const bookingID = bookings[0].bookingid;
@@ -37,12 +28,17 @@ test.describe("Booking API - CRUD with auth", () => {
 		BookingResponseSchema.parse(bookingDetails);
 	});
 
-	test("GET booking by invalid id returns 404", async () => {
+	test("GET booking by invalid id returns 404 @regression @api", async ({
+		apiClient,
+	}) => {
 		const response = await apiClient.getBooking(9999999);
 		expect(response.status()).toBe(404);
 	});
 
-	test("create booking matches expected schema", async () => {
+	test("create booking matches expected schema @smoke @api", async ({
+		apiClient,
+		bookingDataGenerator,
+	}) => {
 		const payload: BookingData =
 			bookingDataGenerator.generateRandomBookingData();
 
@@ -53,7 +49,11 @@ test.describe("Booking API - CRUD with auth", () => {
 		CreateBookingResponse.parse(body);
 	});
 
-	test("update booking with valid token succeeds", async () => {
+	test("update booking with valid token succeeds @regression @api", async ({
+		apiClient,
+		bookingDataGenerator,
+		authToken,
+	}) => {
 		const createResponse = await apiClient.createBooking(
 			bookingDataGenerator.generateRandomBookingData(),
 		);
@@ -68,25 +68,36 @@ test.describe("Booking API - CRUD with auth", () => {
 			bookingdates: { checkin: "2025-06-01", checkout: "2025-06-05" },
 		};
 
-		const response = await apiClient.updateBooking(id, token, updatedPayload);
+		const response = await apiClient.updateBooking(
+			id,
+			authToken,
+			updatedPayload,
+		);
 		expect(response.status()).toBe(200);
 
 		const { firstname } = await response.json();
 		expect(firstname).toBe("Updated");
 	});
 
-	test("delete booking with valid token", async () => {
+	test("delete booking with valid token @regression @api", async ({
+		apiClient,
+		bookingDataGenerator,
+		authToken,
+	}) => {
 		const createResponse = await apiClient.createBooking(
 			bookingDataGenerator.generateRandomBookingData(),
 		);
 
 		const { bookingid: id } = await createResponse.json();
 
-		const response = await apiClient.deleteBooking(id, token);
+		const response = await apiClient.deleteBooking(id, authToken);
 		expect(response.status()).toBe(201);
 	});
 
-	test("delete booking with invalid token returns 403", async () => {
+	test("delete booking with invalid token returns 403 @regression @api", async ({
+		apiClient,
+		bookingDataGenerator,
+	}) => {
 		const createResponse = await apiClient.createBooking(
 			bookingDataGenerator.generateRandomBookingData(),
 		);
@@ -97,7 +108,9 @@ test.describe("Booking API - CRUD with auth", () => {
 		expect(response.status()).toBe(403);
 	});
 
-	test("create booking with missing required fields returns 500 (possibly unintended)", async () => {
+	test("create booking with missing required fields returns 500 (possibly unintended) @regression @api", async ({
+		apiClient,
+	}) => {
 		const payload = {
 			firstname: "OnlyFirstName",
 		};
@@ -105,7 +118,11 @@ test.describe("Booking API - CRUD with auth", () => {
 		expect(response.status()).toBe(500);
 	});
 
-	test("PATCH partial update on a booking succeds", async () => {
+	test("PATCH partial update on a booking suceeds @regression @api", async ({
+		apiClient,
+		bookingDataGenerator,
+		authToken,
+	}) => {
 		const createResponse = await apiClient.createBooking(
 			bookingDataGenerator.generateRandomBookingData(),
 		);
@@ -119,8 +136,8 @@ test.describe("Booking API - CRUD with auth", () => {
 
 		const response = await apiClient.patchBooking(
 			id,
-			token,
-			partialPayload as BookingData,
+			authToken,
+			partialPayload,
 		);
 		expect(response.status()).toBe(200);
 

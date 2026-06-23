@@ -14,8 +14,27 @@ export default defineConfig({
 	},
 	projects: [
 		{
+			name: "setup",
+			testMatch: /auth\.setup\.ts/,
+		},
+		{
 			name: "chromium",
+			use: {
+				...devices["Desktop Chrome"],
+				storageState: ".auth/user.json",
+			},
+			dependencies: ["setup"],
+			testMatch: /tests\/ui\/.*\.spec\.ts/,
+			testIgnore: /tests\/ui\/auth\/.*/,
+		},
+		{
+			name: "chromium-unauthenticated",
 			use: { ...devices["Desktop Chrome"] },
+			testMatch: /tests\/ui\/auth\/.*\.spec\.ts/,
+		},
+		{
+			name: "api",
+			testMatch: /tests\/api\/.*\.spec\.ts/,
 		},
 	],
 });

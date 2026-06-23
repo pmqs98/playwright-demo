@@ -1,14 +1,10 @@
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "../../../pages/LoginPage";
-import { SauceUser, PASSWORD } from "../../../utils/testData";
+import { test, expect } from "../../../fixtures"; // changed from "@playwright/test"
 
 test.describe("Visual regression", () => {
-	test("inventory page matches baseline screenshot", async ({ page }) => {
-		const loginPage = new LoginPage(page);
-
-		await loginPage.goto();
-		await loginPage.login(SauceUser.STANDARD, PASSWORD);
-
+	test("inventory page matches baseline screenshot @regression", async ({
+		page,
+	}) => {
+		await page.goto("/inventory.html");
 		await expect(page).toHaveScreenshot("inventory-page.png", {
 			maxDiffPixelRatio: 0.01,
 		});
