@@ -17,6 +17,14 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Update visual snapshots
+        run: npx playwright test tests/ui/visual --update-snapshots
+      - name: Upload updated snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-snapshots
+          path: tests/ui/visual/**/*.png
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
