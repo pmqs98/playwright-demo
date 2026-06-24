@@ -2,9 +2,19 @@ import { test as setup } from "@playwright/test";
 import { LoginPage } from "../pages/LoginPage";
 import { SauceUser, PASSWORD } from "../utils/testData";
 
-const authFile = ".auth/user.json";
+setup("authenticate as standard user", async ({ page }, testInfo) => {
+	const project = testInfo.project.name;
+	let authFile: string;
+	if (project.includes("chromium")) {
+		authFile = ".auth/chromium-user.json";
+	} else if (project.includes("firefox")) {
+		authFile = ".auth/firefox-user.json";
+	} else if (project.includes("webkit")) {
+		authFile = ".auth/webkit-user.json";
+	} else {
+		throw new Error(`No auth file mapping defined for project: ${project}`);
+	}
 
-setup("authenticate as standard user", async ({ page }) => {
 	const loginPage = new LoginPage(page);
 
 	await loginPage.goto();

@@ -1,18 +1,20 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export type SortOption = "az" | "za" | "lohi" | "hilo";
 
 export class InventoryPage {
 	private readonly inventoryContainer: Locator;
 	private readonly cartIcon: Locator;
-	private readonly menuIcon: Locator;
+	private readonly openMenuIcon: Locator;
+	private readonly closeMenuIcon: Locator;
 	private readonly sortSelect: Locator;
 	private readonly logoutLink: Locator;
 
 	constructor(private page: Page) {
 		this.inventoryContainer = page.locator('[data-test="inventory-container"]');
 		this.cartIcon = page.locator('[data-test="shopping-cart-link"]');
-		this.menuIcon = page.getByRole("button", { name: "Open Menu" });
+		this.openMenuIcon = page.getByRole("button", { name: "Open Menu" });
+		this.closeMenuIcon = page.getByRole("button", { name: "Close Menu" });
 		this.sortSelect = page.locator('[data-test="product-sort-container"]');
 		this.logoutLink = page.locator('[data-test="logout-sidebar-link"]');
 	}
@@ -59,8 +61,18 @@ export class InventoryPage {
 		await this.cartIcon.click();
 	}
 
+	async openMenu(): Promise<void> {
+		await this.openMenuIcon.click();
+		await expect(this.logoutLink).toBeVisible();
+	}
+
+	async closeMenu(): Promise<void> {
+		await this.closeMenuIcon.click();
+		await expect(this.logoutLink).not.toBeVisible();
+	}
+
 	async logout(): Promise<void> {
-		await this.menuIcon.click();
+		await this.openMenu();
 		await this.logoutLink.click();
 	}
 }
