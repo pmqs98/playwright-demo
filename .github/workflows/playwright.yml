@@ -14,10 +14,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
       # - name: Update visual snapshots
       #   run: npx playwright test tests/ui/visual --update-snapshots
       # - name: Upload updated snapshots
@@ -26,6 +37,7 @@ jobs:
       #   with:
       #     name: updated-snapshots
       #     path: tests/ui/visual/**/*.png
+
       - name: Run UI tests
         run: npx playwright test --project=setup-chromium --project=setup-firefox --project=setup-webkit --project=chromium --project=firefox --project=webkit --project=chromium-unauthenticated --project=mobile-chrome --project=mobile-safari
       - uses: actions/upload-artifact@v4
@@ -43,10 +55,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
       - name: Run API tests
         run: npx playwright test --project=api
       - uses: actions/upload-artifact@v4
