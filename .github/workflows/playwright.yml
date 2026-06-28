@@ -19,6 +19,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright system dependencies
+        run: npx playwright install-deps
+
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
@@ -26,9 +29,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Playwright Browsers
+      - name: Install Playwright browser binaries
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install
 
       # - name: Update visual snapshots
       #   run: npx playwright test tests/ui/visual --update-snapshots
@@ -61,6 +64,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright system dependencies
+        run: npx playwright install-deps
+
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
@@ -68,9 +74,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Playwright Browsers
+      - name: Install Playwright browser binaries
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install
 
       - name: Run API tests
         run: npx playwright test --project=api
