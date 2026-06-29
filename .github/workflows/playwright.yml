@@ -51,6 +51,18 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Generate Allure report
+        if: ${{ !cancelled() }}
+        run: rm -rf allure-report && npx allure generate allure-results -o allure-report
+
+      - name: Upload Allure report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+
   api-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -89,3 +101,15 @@ jobs:
           name: playwright-report-ui
           path: playwright-report/
           retention-days: 30
+
+  docker-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Run smoke tests in container
+        run: npx playwright test --grep @smoke
